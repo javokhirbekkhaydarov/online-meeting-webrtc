@@ -1,15 +1,13 @@
 <template>
-  <div id="app">
-    <header>
-      <button v-if="!isAuthenticated" @click="signIn">Sign In</button>
-      <button v-if="isAuthenticated" @click="signOut">Sign Out</button>
-    </header>
-    <router-view></router-view>
+  <div>
+    <button @click="signIn">Sign In</button>
+    <button v-if="isAuthenticated" @click="signOut">Sign Out</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import {
   getAuth,
   signInWithPopup,
@@ -18,11 +16,15 @@ import {
 } from "firebase/auth";
 
 const auth = getAuth();
+const router = useRouter();
 const isAuthenticated = ref(false);
 
 const checkAuthStatus = () => {
   auth.onAuthStateChanged((user) => {
     isAuthenticated.value = !!user;
+    if (user) {
+      router.push("/");
+    }
   });
 };
 
@@ -39,6 +41,7 @@ const signOutUser = async () => {
   try {
     await signOut(auth);
     isAuthenticated.value = false;
+    router.push("/auth");
   } catch (error) {
     console.error("Error signing out: ", error);
   }
@@ -48,17 +51,3 @@ onMounted(() => {
   checkAuthStatus();
 });
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-header {
-  margin-bottom: 20px;
-}
-</style>

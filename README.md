@@ -1,4 +1,4 @@
-# online-meeting
+# online-meeting use vue 3 ts, webRTC
 
 ## Project setup
 ```

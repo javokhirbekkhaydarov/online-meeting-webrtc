@@ -1,26 +1,41 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
-import HomeView from "../views/HomeView.vue";
+import { getAuth } from "firebase/auth";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
     name: "home",
-    component: HomeView,
+    component: () => import("../views/HomePage.vue"),
   },
   {
-    path: "/about",
-    name: "about",
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () =>
-      import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
+    path: "/meet/:roomId",
+    name: "meet",
+    component: () => import("../views/MeetPage.vue"),
+    props: true,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/auth",
+    name: "auth",
+    component: () => import("../views/AuthPage.vue"),
   },
 ];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+});
+
+router.beforeEach((to, from, next) => {
+  const auth = getAuth();
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  const currentUser = auth.currentUser;
+
+  if (requiresAuth && !currentUser) {
+    next("/auth");
+  } else {
+    next();
+  }
 });
 
 export default router;
